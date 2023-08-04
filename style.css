@@ -6,7 +6,7 @@ body {
   line-height: 1.6;
   margin: 0;
   padding: 0;
-  background-color: #e8e6ae;
+  background-color: #e8e6ae; /* Set the body background color here */
 }
 
 .container {
@@ -16,25 +16,16 @@ body {
 .left-section, .right-section {
   flex: 1;
   padding: 1rem;
+  background-color: #e8e6ae; /* Match the background color for the left and right sections */
 }
 
-.left-section {
-  background-color: #fff; /* Adjust background color for the left section */
-}
-
-.right-section {
-  background-color: #f5f5f5; /* Adjust background color for the right section */
+.left-section, .right-section, header, footer {
+  color: #000; /* Match the text color for the left and right sections, header, and footer */
 }
 
 .center-section {
-  flex: 3;
-}
-
-header, footer {
-  background-color: #0a253d;
-  color: #fff;
-  text-align: center;
-  padding: 1rem;
+  flex: 5;
+  background-color: #e8e6ae; /* Center section background color */
 }
 
 main {
@@ -73,3 +64,36 @@ a {
 .entry img {
   margin-right: 1rem;
 }
+
+/* Add this CSS to create two columns in the news section */
+#news {
+    /* display: flex; */
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  
+  .news-container {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  
+  .column1_news{
+    flex-basis: 15%; /* Adjust the width of each column as needed */
+    margin-bottom: 1rem;
+  }
+
+  .column2_news{
+    flex-basis: 85%; /* Adjust the width of each column as needed */
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+  
+  /* Media query for responsive layout on smaller screens */
+  @media (max-width: 600px) {
+    .column {
+      flex-basis: 100%; /* On smaller screens, make the columns take full width */
+    }
+  }
+  
