@@ -79,21 +79,91 @@ a {
     flex-wrap: wrap;
   }
   
-  .column1_news{
-    flex-basis: 15%; /* Adjust the width of each column as needed */
-    margin-bottom: 1rem;
+  .news-table {
+    width: 100%;
+    border-collapse: collapse;
   }
-
-  .column2_news{
-    flex-basis: 85%; /* Adjust the width of each column as needed */
-    margin-bottom: 1rem;
+  
+  .news-table td {
+    padding: 10px;
+    border-bottom: 1px solid #b8b2a2;
+  }
+  
+  .column1_news {
+    /* Adjust the width of column 1 */
+    width: 25%;
+  }
+  
+  .column2_news {
+    /* Adjust the width of column 2 */
+    width: 75%;
     text-align: left;
   }
   
   /* Media query for responsive layout on smaller screens */
   @media (max-width: 600px) {
-    .column {
-      flex-basis: 100%; /* On smaller screens, make the columns take full width */
+    main {
+        padding: 1rem; /* Reduce padding on smaller screens */
+      }
+    .column1_news,
+    .column2_news {
+      /* On smaller screens, make both columns take full width */
+      width: 100%;
+    }
+  }
+
+/* Media query for responsive layout on smaller screens */
+@media (max-width: 768px) {
+    .container {
+      flex-direction: column; /* Stack the sections vertically */
+    }
+  
+    .left-section,
+    .right-section,
+    .center-section {
+      flex: 100%; /* Take full width on smaller screens */
+    }
+  
+    #news {
+      justify-content: space-between; /* Center the news section */
+    }
+  
+    .column1_news {
+      width: 25%; /* Make the news columns take full width */
+      margin-bottom: 1rem;
+    }
+    .column2_news {
+      width: 75%; /* Make the news columns take full width */
+      text-align: left;
+    }
+  }
+/* Additional styles for the experience table */
+.experience-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .experience-table td {
+    padding: 10px;
+    border-bottom: 1px solid #b8b2a2;
+  }
+  
+  .column1_experience {
+    /* Adjust the width of column 1 */
+    width: 30%;
+  }
+  
+  .column2_experience {
+    /* Adjust the width of column 2 */
+    width: 70%;
+    text-align: left;
+  }
+  
+  /* Media query for responsive layout on smaller screens */
+  @media (max-width: 600px) {
+    .experience-table td {
+      display: block; /* On smaller screens, make table cells take full width and stack on top of each other */
+      width: 100%;
     }
   }
   

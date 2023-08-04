@@ -10,7 +10,7 @@
   <div class="container">
     <header style="background-color: #0a253d; color: #fff; text-align: center; padding: 1rem;">
       <h1>Suchetan Saravanan</h1>
-      <img src="your-picture.jpg" alt="Your Picture" style="max-width: 150px; border-radius: 50%;">
+      <img src="./images/your-picture.jpg" alt="Your Picture" style="max-width: 150px; border-radius: 50%;">
     </header>
 
     <section class="left-section">
@@ -46,36 +46,51 @@
 
         <section id="news">
           <h2>News</h2>
-          <div class="news-container">
-            <div class="column1_news">
-              <p><strong>August 2023</strong></p>
-              <p><strong>July 2023</strong></p>
-            </div>
-            <div class="column2_news">
-              <p>Created my personal website.</p>
-              <p>Started working on an exciting new project.</p>
-            </div>
-          </div>
-        </section>        
+          <table class="news-table">
+            <tr>
+              <td class="column1_news"><strong>August 2023</strong></td>
+              <td class="column2_news">Created my personal website.</td>
+            </tr>
+            <tr>
+              <td class="column1_news"><strong>July 2023</strong></td>
+              <td class="column2_news">Started working on an exciting new project.</td>
+            </tr>
+          </table>
+        </section>     
 
         <section id="experience">
           <h2>Experience</h2>
-          <!-- Placeholder content for experience entries -->
-          <div class="entry">
-            <img src="company1.jpg" alt="Company 1" style="max-width: 100px;">
-            <div class="info">
-              <h3>Company 1</h3>
-              <p>Internship description goes here.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <img src="company2.jpg" alt="Company 2" style="max-width: 100px;">
-            <div class="info">
-              <h3>Company 2</h3>
-              <p>Internship description goes here.</p>
-            </div>
-          </div>
-        </section>
+          <!-- Placeholder content for experience entries using a table -->
+          <table class="experience-table">
+            <tr>
+              <td class="column1_experience">
+                <img src="./images/isae.png" alt="isae" style="max-width: 150px;">
+              </td>
+              <td class="column2_experience">
+                <h3>ISAE-SUPAERO, France</h3>
+                <p>Internship description goes here.</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="column1_experience">
+                <img src="./images/igcar.webp" alt="IGCAR" style="max-width: 150px; border-radius: 50%;">
+              </td>
+              <td class="column2_experience">
+                <h3>Indira Gandhi Center For Atomic Research, India</h3>
+                <p>Internship description goes here.</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="column1_experience">
+                <img src="./images/ingen.svg" alt="ingen" style="max-width: 150px;">
+              </td>
+              <td class="column2_experience">
+                <h3>InGenDynamics, India</h3>
+                <p>Internship description goes here.</p>
+              </td>
+            </tr>
+          </table>
+        </section>        
 
         <section id="projects">
           <h2>Projects</h2>
