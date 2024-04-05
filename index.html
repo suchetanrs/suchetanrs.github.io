@@ -1,144 +1,437 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suchetan Saravanan</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="container">
-    <header style="background-color: #0a253d; color: #fff; text-align: center; padding: 2rem;">
-      <h1>Suchetan Saravanan</h1>
-      <img src="./images/your-picture.jpg" alt="Your Picture" style="max-width: 270px; border-radius: 3%;">
-      <nav>
-        <ul style="list-style: none; display: flex; justify-content: center; margin-top: 1rem;">
-          <li style="margin-right: 1rem;"><a href="#about" style="color: #fff; text-decoration: none;">About</a></li>
-          <li style="margin-right: 1rem;"><a href="#news" style="color: #fff; text-decoration: none;">News</a></li>
-          <li style="margin-right: 1rem;"><a href="#experience" style="color: #fff; text-decoration: none;">Experience</a></li>
-          <li style="margin-right: 1rem;"><a href="#projects" style="color: #fff; text-decoration: none;">Projects</a></li>
-          <li><a href="#projects" style="color: #fff; text-decoration: none;">Contributions</a></li>
-          <li><a href="suchetanrs_resume.pdf">Download Resume</a></li>
-        </ul>
-      </nav>
-    </header>    
+  <head>
+    <!-- Metadata of the Webpage -->
+    <!-- Character-set Metadata -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Viewport Metadata -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Description Metadata-->
+    <meta name="description" content="Portfolio Website" />
+    <!-- Author Metadata -->
+    <meta name="author" content="Suchetan Saravanan" />
+    <!-- Keyword Metadata -->
+    <meta
+      name="keywords"
+      content="Suchetan Saravanan, Suchetan Saravanan BITS, Suchetan Saravanan ISAE, Suchetan Saravanan Clutterbot,
+      Suchetan Saravanan Website, Suchetan R S"
+    />
+    <!-- Webpage Logo -->
+    <link rel="shortcut icon" href="./assets/img/websiteicon.ico" />
+    <!-- Webpage Title -->
+    <title>Suchetan Saravanan</title>
 
-    <section class="left-section">
-      <!-- Add content for the left section here -->
-      <!-- <p>Left Section</p> -->
-    </section>
+    <!-- Import CSS: Main Stylesheet -->
+    <link rel="stylesheet" href="./assets/css/main.css" />
+  </head>
 
-    <section class="center-section">
-
-      <main style="padding: 2rem;">
-        <section id="about">
-          <h2>About Me</h2>
-          <p>
-            I am a final year undergraduate at the Electrical and Electronics Department at BITS Pilani, Goa Campus majoring in Electrical and Electronics. I am a huge fan of building autonomous robots.
-          </p>
-          <p>
-            I am currently pursuing my Bachelor's thesis as a research fellow in the NAVIR²eS research group at ISAE-SUPAERO, France under Dr. Damien Vivet. The work I am doing here mainly focusses on building an Active SLAM system with multiple co-ordinating ground robots to explore a 3D terrain.
-          </p>
-          <p>
-            I served as the lead for the Robotic Arm subsystem of Project Kratos which is a prototype Mars rover built from ground up by our team for participating in the University Rover Challenge and the International Rover Challenge. Apart from this, I have been actively involved in various technical robotics projects in BITS Goa.
-          </p>
-          <p>
-            Programming has been something that I have loved to do for a very long time now. I am thankful to have found interest in building autonomous robots where I get to put my skills to use. Apart from this, I play chess and love running.
-            If you wish to collaborate on a research project involving SLAM, please feel free to contact me. I will be very happy to collaborate! :)
-          </p>
-          <ul class="links">
-            <li><a href="suchetanrs_resume.pdf" target="_blank">Resume</a></li>
-            <li><a href="https://www.linkedin.com/in/suchetansaravanan/" target="_blank">LinkedIn</a></li>
-            <li><a href="https://github.com/suchetansaravanan" target="_blank">GitHub</a></li>
-            <li><a href="mailto:your-email@example.com">Email</a></li>
-          </ul>
-        </section>
-
-        <section id="news">
-          <h2>News</h2>
-          <table class="news-table">
-            <tr>
-              <td class="column1_news"><strong>August 2023</strong></td>
-              <td class="column2_news">Created my personal website.</td>
-            </tr>
-            <tr>
-              <td class="column1_news"><strong>July 2023</strong></td>
-              <td class="column2_news">Started working on an exciting new project.</td>
-            </tr>
-          </table>
-        </section>     
-
-        <section id="experience">
-          <h2>Experience</h2>
-          <!-- Placeholder content for experience entries using a table -->
-          <table class="experience-table"><tbody>
-            <tr>
-              <td class="column1_experience">
-                <img src="./images/isae.png" alt="isae" style="max-width: 150px;">
-              </td>
-              <td class="column2_experience">
-                <h3>ISAE-SUPAERO, France</h3>
-                <p>Currently pursuing my Bachelor's thesis at the NAVIR²eS research team in the field of Active Simultaneous Localization and Mapping for multiple co-ordinating robots with main focus on optimizing the exploration strategy to minimise map and localization uncertainity during SLAM.</p>
-              </td>
-            </tr>
-            <tr>
-              <td class="column1_experience">
-                <img src="./images/igcar.webp" alt="IGCAR" style="max-width: 150px; border-radius: 50%;">
-              </td>
-              <td class="column2_experience">
-                <h3>Indira Gandhi Center For Atomic Research, India</h3>
-                <p>Worked on the STM-32 microcontroller to distinguish between alpha and beta radiation after being passed through a scintillation device. Carried out signal denoising and analysis on the emitted radiation to obtain discrimination results.</p>
-              </td>
-            </tr>
-            <tr>
-              <td class="column1_experience">
-                <img src="./images/ingen.svg" alt="ingen" style="max-width: 150px;">
-              </td>
-              <td class="column2_experience">
-                <h3>InGenDynamics, India</h3>
-                <p>I played a key role in building the navigation stack and programming the required global and local planner algorithms for Aido (an autonomous homespace robot). Apart from integrating the custom planner into the ROS Navigation stack, I also worked on face and object recognition using YoloV4.</p>
-              </td>
-            </tr>
-          </tbody></table>
-        </section>        
-
-        <section id="projects">
-          <h2>Projects</h2>
-          <!-- Placeholder content for project entries -->
-          <div class="entry">
-            <img src="project1.jpg" alt="Project 1" style="max-width: 100px;">
-            <div class="info">
-              <h3>Project Kratos</h3>
-              <p>Project description goes here.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <img src="project2.jpg" alt="Project 2" style="max-width: 100px;">
-            <div class="info">
-              <h3>Mapping using an FMCW radar</h3>
-              <p>Project description goes here.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <img src="project2.jpg" alt="Project 3" style="max-width: 100px;">
-            <div class="info">
-              <h3>Signal denoising and beat frequency estimation for plasma reflectometry</h3>
-              <p>Project description goes here.</p>
-            </div>
-          </div>
-        </section>
-      </main>
-    </section>
-
-    <div class="right-section">
-      <!-- Right section content here -->
-      <!-- <p>Right Section</p> -->
+  <body>
+    <div id="particles-js">
+      <div class="header">
+        <h1>
+          <span class="site-title">Suchetan Saravanan</span>
+          <span class="site-description">Final Year Undergraduate Student at BITS Pilani, Goa Campus</span>
+        </h1>
+        <div class="header-icons">
+          <a aria-label="My LinkedIn Profile" target="_blank" href="https://www.linkedin.com/in/suchetan-saravanan-a245ab209/">
+            <i class="icon fa fa-linkedin" aria-hidden="true"></i>
+          </a>
+          <a aria-label="My Github Profile" target="_blank" href="https://github.com/suchetanrs">
+            <i class="icon fa fa-github-alt" aria-hidden="true"></i>
+          </a>
+          <a aria-label="My Résumé" target="_blank" href="https://suchetanrs.github.io/suchetanrs_resume.pdf">
+            <i class="icon fa fa fa-file-pdf-o" aria-hidden="true"></i>
+          </a>
+          <a aria-label="Send Email" href="mailto:rssuchetan@gmail.com" target="_blank"
+            ><i class="icon fa fa-envelope"></i
+          ></a>
+        </div>
+        <div class="header-links">
+          <a class="link" href="#about" data-scroll>About Me</a>
+          <a class="link" href="#projects" data-scroll>Projects</a>
+        </div>
+      </div>
+      <a class="down" href="#about" data-scroll><i class="icon fa fa-chevron-down" aria-hidden="true"></i></a>
     </div>
-  </div>
 
-  <footer style="background-color: #0a253d; color: #fff; text-align: center; padding: 1rem; bottom: 0; width: 100%;">
-    <p>&copy; 2023 Suchetan Saravanan. All rights reserved.</p>
-  </footer>
-  </div>
-</body>
+    <!-- About Section -->
+    <section id="about">
+      <!-- User Introduction-->
+      <div class="user-details">
+        <h1>About Me</h1>
+        <picture>
+          <!-- <source
+            type="image/webp"
+            srcset="./assets/img/webp/Professional-Picture-Me.webp"
+            alt="Professional Me"
+            width="20%"
+            style="border-radius: 50%"
+          /> -->
+          <img
+            src="./assets/img/jpg/pictureOFME.jpg"
+            alt="Professional Me"
+            width="20%"
+            style="border-radius: 50%"
+          />
+        </picture>
+        <p >
+          I am a final year undergraduate at the Electrical and Electronics Department at BITS Pilani, Goa Campus majoring in Electrical and Electronics. I am a huge fan of building autonomous robots.
+          I am currently pursuing my Bachelor's thesis as a research fellow in the NAVIR²eS research group at ISAE-SUPAERO, France under Dr. Damien Vivet. The work I am doing here mainly focusses on building an Active SLAM system with multiple co-ordinating ground robots to explore a 3D terrain.
+          I served as the lead for the Robotic Arm subsystem of Project Kratos which is a prototype Mars rover built from ground up by our team for participating in the University Rover Challenge and the International Rover Challenge. Apart from this, I have been actively involved in various technical robotics projects in BITS Goa.
+          Programming has been something that I have loved to do for a very long time now. I am thankful to have found interest in building autonomous robots where I get to put my skills to use. Apart from this, I play chess and love running.
+          If you wish to collaborate on a research project involving SLAM, please feel free to contact me. I will be very happy to collaborate! :)
+        </p>
+      </div>
+      
+      </section>
+
+      <section id="about">
+        <!-- User Introduction-->
+        <div class="user-details">
+          <h1>News</h1>
+          <p class="timeline">
+            <br><b><font color="blue">[Jan  '24]</font></b> Joined Clutterbot Pvt. Ltd. as a Robot Software Intern.
+            <br><b><font color="blue">[Feb  '24]</font></b> Presented the work done during my thesis (FIT-SLAM) at ICARA '24 held in Athens, Greece.
+            <br><b><font color="blue">[Jun  '23]</font></b> Started to pursue a Bachelor's thesis in the field of Active SLAM at ISAE-SUPAERO, France.
+            <br><b><font color="blue">[Sept '22]</font></b> Completed my summer internship from Indira Gandhi Center for Atomic Research (IGCAR), India. 
+            <br><b><font color="blue">[Jul  '22]</font></b> Placed second world-wide and first among all Indian teams at the Anatolian Rover Challenge '22 in Istanbul, Turkey.
+            <br><b><font color="blue">[May  '22]</font></b> Placed first among all Indian teams in the University Rover Challenge '22 in Utah, USA. 
+            <br><b><font color="blue">[Sept '20]</font></b> Will be pursuing my bachelor's in Electronics Engineering from BITS Pilani, India.
+          </p>
+        </div>
+        
+        </section>
+
+      <section id="about">
+        <!-- User Introduction-->
+        <div class="user-details">
+          <h1>Publications</h1>
+          <p>
+            [1] <b>FIT-SLAM - Fisher Information and Traversability estimation-based Active SLAM for exploration in 3D environments</b>
+            <br>Suchetan Saravanan, Corentin Chauffaut, Caroline Chanel, Damien Vivet 
+            (<a href="https://arxiv.org/abs/2401.09322">Link</a>) ICARA ’24, at ICARA '24 Accepted. Recieved          </p>
+        </div>
+        
+        </section>
+      <section id="about">
+        <div class="user-details">
+          <h1><center>Experience</center></h1>
+        </div>
+      <div class="user">
+        <div class="tech">
+          <picture>
+            <source
+              type="image/webp"
+              srcset="./assets/img/webp/isae.webp"
+              alt="ISAE SUPAERO"
+              width="150px"
+            />
+            <img
+              src="./assets/img/jpg/isae.jpg"
+              alt="ISAE SUPAERO"
+              width="150px"
+              class="img-tech"
+            />
+          </picture>
+          <p>Undergraduate Researcher</p>
+          <p>ISAE-SUPAERO, Toulouse, France</p>
+        </div>
+
+        <div class="tech">
+          <picture>
+            <source
+              type="image/webp"
+              srcset="./assets/img/webp/clutterbot_logo.webp"
+              alt="CLUTTERBOT"
+              width="130px"
+              style="border-radius: 50%"
+            />
+            <img
+              src="./assets/img/jpg/clutterbot_logo.jpg"
+              alt="CLUTTERBOT"
+              width="130px"
+              style="border-radius: 50%"
+              class="img-tech"
+            />
+          </picture>
+          <p>Robot Software Intern</p>
+          <p>Clutterbot Technologies Pvt. Ltd.</p>
+        </div>
+
+        <div class="tech">
+          
+          <picture>
+            <source
+              type="image/webp"
+              srcset="./assets/img/webp/ingen.webp"
+              alt="ingen"
+              width="180px"
+              style="border-radius: 90%"
+            />
+            <img
+              src="./assets/img/jpg/ingen.jpg"
+              alt="ingen"
+              width="180px"
+              style="border-radius: 9SS0%"
+              class="img-tech"
+            />
+          </picture>
+          <h4></h4>
+          <p>Robotics Summer Intern</p>
+          <p>InGenDynamics Inc.</p>
+        </div>
+
+        <!-- Technology Stack #4: Tools -->
+      </div>
+    </section>
+
+   
+    <!-- Projects Section -->
+    <section id="projects">
+      <div class="user-details">
+        <h1> Projects</h1>
+      </div>
+
+      <!-- User Project #2: Summer 2020 Project -->
+      <div class="user-projects">
+        <div class="images-left">
+          <picture>
+            <source type="image/gif" srcset="./assets/img/jpg/orbslam3.gif" alt="Full-fledged ROS 2 Wrapper for ORB-SLAM3" />
+            <img alt="Full-fledged ROS 2 Wrapper for ORB-SLAM3" src="./assets/img/jpg/orbslam3.gif" />
+          </picture>
+        </div>
+        <div class="contents-right" style="text-align: left">
+          <h3 style="text-align: center">ROS 2 Wrapper for ORB-SLAM3</h3>
+          <ul style="color:rgb(0, 0, 0);">
+            <li>The most comprehensive dockerized ROS 2 Wrapper for ORB-SLAM3.</li>
+            <li>Handles loss of tracking with on-board odometry. Provides full visualizations through RViz</li>
+            <li>85+ stars on Github!</li>
+         </ul>
+          <p style="text-align: center">
+            <a class="project-link" target="_blank" href="https://github.com/suchetanrs/ORB-SLAM3-ROS2-Docker"
+              >Check it out!</a>
+          </p>
+        </div>
+      </div>
+      <p></p>
+      <!-- <h3></h3> -->
+    
+      <!-- User Project #1: Personal Résumé Website -->
+      <div class="user-projects">
+        <div class="images-right">
+          <picture>
+            <source type="image/webp" srcset="./assets/img/webp/fslam.webp" alt="FIT-SLAM - Fisher Information and Traversability estimation-based Active SLAM for exploration in 3D environments" />
+            <img alt="FIT-SLAM - Fisher Information and Traversability estimation-based Active SLAM for exploration in 3D environments" src="./assets/img/jpg/fslam.png" />
+          </picture>
+        </div>
+        <div class="contents" style="text-align: left">
+          <h3 style="text-align: center">FIT-SLAM - Fisher Information and Traversability estimation-based Active SLAM for exploration in 3D environments</h3>
+          <ul style="color:black ">
+            <li>A full fledged library for autonomous exploration for UGVs in 3D environments.</li>
+            <li>Used C++, Python, ROS 2, Tested on the Scout V2.</li>
+            <li>Paper accepted in ICARA '24</li>
+        <p style="text-align: center">
+          <a class="project-link" target="_blank" href="https://github.com/suchetanrs/FIT-SLAM"
+            >Check it out here</a>
+        </p>
+        </div>
+      </div>
+      <p></p>
+      <!-- <h3></h3> -->
+
+      <!-- User Project #3 Traversability mapping-->
+      <!-- <div class="user-projects">
+        <div class="images-right">
+          <p></p>
+          <h3></h3>
+          <picture>
+            <source type="image/webp" srcset="./assets/img/webp/vad.webp" alt="Vision Assisted Pure Pursuit based Landing For MAVs" />
+            <img alt="Vision Assisted Pure Pursuit based Landing For MAVs" src="./assets/img/jpg/vad.jpg" />
+          </picture>
+        </div>
+        <div  class="contents" style="text-align: left">
+          <h3 style="text-align: center">Vision Assisted Pure Pursuit based Landing For MAVs</h3>
+          <ul style="color:rgb(0, 0, 0);">
+            <li>Implemented a new approach for Pure Pursuit algorithm for UAVs.</li>
+            <li>Used ROS, Python, C++, Gazebo, Rviz, and PX4 Autopilot.</li>
+            <li>Paper Manuscript in Preparation for Submission</li>
+         </ul>
+        <p style="text-align: center">
+          <a class="project-link" target="_blank" href="https://github.com/offjangir/Drone_Landing_PP"
+          >Check it out!</a>
+        </p>
+        </div>
+      </div> -->
+
+      <!-- Use Project #4:  -->
+      <div class="user-projects">
+        <div class="images-left">
+          <picture>
+            <source type="image/webp" srcset="./assets/img/webp/kratos.webp" alt="Project Kratos - A Mars Rover" />
+            <img alt="Project Kratos - A Mars Rover" src="./assets/img/jpg/kratos.png" />
+          </picture>
+        </div>
+        <div class="contents-right" style="text-align: left">
+          <h3 style="text-align: center">Project Kratos - A Mars Rover</h3>
+          <ul style="color:rgb(0, 0, 0);">
+            <li>Development of prototype of a mars rover for the University Rover
+              Challenge (URC). </li>
+            <li>Led a team of 6 to develop the robotic arm from scratch for the rover.</li>
+            <li>Led the team to multiple podium finishes in IRC, URC and ARC.</li>
+          </ul>
+        <p style="text-align: center">
+          <a class="project-link" target="_blank" href="https://github.com/Kratos-The-Rover"
+            >Check it out!</a>
+        </p>
+        </div>
+      </div>
+      <p></p>
+
+      <!-- <div class="user-projects">
+        <div class="images-right">
+          <picture>
+            <source type="image/webp" srcset="./assets/img/webp/Chess.webp" alt="Radar SLAM and Signal Processing using FM-CW Reflectometry instrument" />
+            <img alt="Radar SLAM and Signal Processing using FM-CW Reflectometry instrument" src="./assets/img/jpg/Chess.jpg" />
+          </picture>
+        </div>
+        <div  class="contents" style="text-align: left">
+          <h3 style="text-align: center">Radar SLAM and Signal Processing using FM-CW Reflectometry instrument</h3>
+          <ul style="color:rgb(0, 0, 0);">
+            <li>Designed to fulfill the course requirements of the digital design course.</li>
+            <li>A digital sequential synchronous circuit designed using flipflops, registers counters, and basic digital logic</li>
+            <li>The circuit was successfully simulated on Logisim.</li>
+         </ul>
+        <p style="text-align: center">
+          <a class="project-link" target="_blank" href="https://github.com/offjangir/ChessPieceAutomator"
+          >Check it out!</a>
+        </p>
+        </div>
+      </div>
+      <p></p> -->
+
+      <!-- <div class="user-projects">
+        <div class="images-left">
+          <picture>
+            <source type="image/webp" srcset="./assets/img/webp/tank.webp" alt="Smart Overhead Tank" />
+            <img alt="Smart Overhead Tank" src="./assets/img/jpg/tank.jpg" />
+          </picture>
+        </div>
+        <div class="contents-right" style="text-align: left">
+          <h3 style="text-align: center">Smart Overhead Tank</h3>
+          <ul style="color:rgb(0, 0, 0);">
+            <li>Designed to fulfill the course requirements of the Microprocessors and interfacing course.</li>
+            <li>The Embedded system was designed to maintain the level of home overhead tanks controlling the pumps in the tanks using an 8086
+              microprocessor.</li>  
+            <li>The circuit was successfully simulated in Proteus.</li>
+         </ul>
+        <p style="text-align: center">
+          <a class="project-link" target="_blank" href="https://github.com/offjangir/SmartOverheadTank"
+            >Check it out!</a>
+        </p>
+        </div>
+      </div>
+      <div class="user-projects">
+        <div class="images-right">
+          <h3></h3>
+          <picture>
+            <source type="image/webp" srcset="./assets/img/webp/ledpad.webp" alt="LED-Octapad" />
+            <img alt="LED-Octapad" src="./assets/img/jpg/ledpad.jpg" />
+          </picture>
+        </div>
+        <div  class="contents" style="text-align: left">
+          <h3 style="text-align: center">LED-Octapad</h3>
+          <ul style="color:rgb(0, 0, 0);">
+            <li>Led Octapad is a MIDI controller which can play not just one but many different instruments. The pads are dynamic, reacting in real-time to your
+              touch, while also sending MIDI signals to your computer to play, say a virtual drum machine, or a virtual piano.</li>
+            <li>In parallel, the pads also generate multiple beautiful color patterns using 300+ neopixels.</li>
+         </ul>
+        <p style="text-align: center">
+          >Check it out!</a>
+        </p>
+        </div>
+      </div> -->
+    </section>
+
+    <!-- <section id="about">
+      <div class="user-details">
+      </div>
+      <div class="user"> -->
+        <!-- Technology Stack #1: Languages -->
+        <!-- <div class="tech">
+          <h2>Programming</h2>
+          <i class="devicon-c-plain colored"></i>
+          <i class="devicon-cplusplus-plain-wordmark colored"></i>
+          <i class="devicon-python-plain colored"></i>
+          <i class="devicon-java-plain colored"></i>
+          <p>C | C++ | Python | Java | Bash | Verilog</p>
+        </div> -->
+
+        <!-- Technology Stack #2: Front-End -->
+        <!-- <div class="tech">
+          <h2>Skills</h2>
+          <img src="./assets/img/jpg/skill.jpeg" width="260px" style="display: inline;" />
+          <p> Control Systems | State Estimation | Navigation | Embedded Systems | IoT </p>
+        </div> -->
+
+        <!-- Technology Stack #3: Back-End -->
+        <!-- <div class="tech">
+          <h2>Tools</h2>
+          <img src="./assets/img/jpg/ros.png" width="82px" style="display: inline;" />
+          <img src="./assets/img/jpg/ten.png" width="82px" style="display: inline;" />
+          <img src="./assets/img/jpg/gaz.png" width="82px" style="display: inline;" />
+          <img src="./assets/img/jpg/mat.jpeg" width="70px" style="display: inline;" />
+          <img src="./assets/img/jpg/ard.png" width="70px" style="display: inline;" />
+          <p>ROS | TensorFlow | Gazebo | Matlab & Simulink | Arduino | Proteus | LabVIEW </p>
+        </div> -->
+
+        <!-- Technology Stack #4: Tools -->
+      <!-- </div>
+    </section> -->
+
+
+    <!-- <section id="about">
+      <div class="user-details">
+        <h1>Teaching</h1>
+      </div>
+      <p style="color:rgb(0, 0, 0);">
+        Quark Summer term Project Instructor :
+      <ul style="color:rgb(0, 0, 0);">
+        <li>Aerial Robotics : Introduction to Path Planning and Perception <a href="https://drive.google.com/file/d/12Izo1AdTj2YZRF7mX6SA5aDu5o6Keupf/view?usp=sharing">Certificate</a> </li>
+        <li>Intro to Mechatronics</li>
+      </ul>
+      </p>
+      </section> -->
+
+
+      <!-- <section id="about">
+        <div class="user-details">
+          <h1>Extracurricular</h1>
+          <p >
+    
+          </p>
+        </div>
+        <p style="color:rgb(0, 0, 0);">
+          Quark Summer term Project Instructor :
+        <ul style="color:rgb(0, 0, 0);">
+          <li><a href="https://erc-bpgc.github.io/about_us.html">Electronics and Robotics Club Bits Goa </a> : Inventory Head(2020-21), Core Member(2019-Present)   </li>
+          <li><a href="https://devsoc.club/">Developers Society, Bits Goa</a> : Core Member(2019-Present)</li>
+       </ul>
+      </p>
+        </section> -->
+
+
+    <footer class="footer" >
+      <p>&copy; Suchetan Saravanan, 2024</p>
+    </footer>
+
+    <!-- Import JS: Particles Theme -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- Import JS: Sweet Scroll -->
+    <script src="./assets/js/sweet-scroll.min.js"></script>
+    <!-- Import JS: Google Analytics -->
+    <script src="./assets/js/google-analytics.js"></script>
+    <!-- Import JS: Main Script -->
+    <script src="./assets/js/main.js"></script>
+  </body>
 </html>
