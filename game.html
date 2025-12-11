@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Robot Explorer</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #0b0c10;
+            color: #ffffff;
+            font-family: "Press Start 2P", "Courier New", monospace;
+        }
+
+        #ui {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        #hud {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #66fcf1;
+            padding: 10px;
+            border-radius: 6px;
+            width: 320px;
+            max-width: 50vw;
+        }
+
+        #hud h1 {
+            font-size: 14px;
+            margin: 0 0 6px 0;
+            color: #66fcf1;
+        }
+
+        #hud p {
+            margin: 4px 0;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        #legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 4px 8px;
+            font-size: 10px;
+            margin-top: 6px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .swatch {
+            width: 14px;
+            height: 14px;
+            border: 1px solid #111;
+        }
+
+        #instructions {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #45a29e;
+            padding: 10px;
+            border-radius: 6px;
+            max-width: 360px;
+            font-size: 11px;
+            line-height: 1.4;
+            pointer-events: auto;
+        }
+
+        #instructions h2 {
+            margin: 0 0 6px 0;
+            font-size: 13px;
+            color: #45a29e;
+        }
+
+        #canvas {
+            width: 100vw;
+            height: 100vh;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            display: block;
+            background: #0b0c10;
+        }
+
+        #startOverlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            z-index: 3;
+            flex-direction: column;
+            gap: 14px;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #startOverlay button {
+            padding: 10px 18px;
+            font-size: 13px;
+            font-family: "Press Start 2P", "Courier New", monospace;
+            background: #66fcf1;
+            color: #0b0c10;
+            border: 2px solid #45a29e;
+            cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            #hud {
+                width: 240px;
+            }
+            #instructions {
+                max-width: 240px;
+            }
+            #ui {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="startOverlay">
+        <div style="max-width:480px;">
+            <h1 style="margin:0 0 10px 0; color:#66fcf1; font-size:18px;">Pixel Robot Explorer</h1>
+            <p style="margin:0;">Pilot your robot, uncover the map, and collect fresh produce.<br>Find the gold coin for a massive bounty.</p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px; align-items:center; color:#fff; font-size:12px;">
+            <label style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+                Map size (tiles): <span id="mapSizeValue">20</span>
+                <input id="mapSize" type="range" min="10" max="80" step="2" value="20">
+            </label>
+            <label style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+                Vision radius (tiles): <span id="visionValue">2</span>
+                <input id="visionRadius" type="range" min="1" max="6" step="1" value="2">
+            </label>
+        </div>
+        <button id="startBtn">Start Exploring</button>
+    </div>
+    <canvas id="canvas"></canvas>
+
+    <div id="ui">
+        <div id="hud">
+            <h1>Status</h1>
+            <p id="stats">Ready...</p>
+            <div id="legend"></div>
+        </div>
+        <div id="instructions">
+            <h2>Controls</h2>
+            <p>Move: WASD or Arrow Keys</p>
+            <p>Goal: Explore the map, collect produce, find the gold coin for a huge reward.</p>
+            <p>Tip: Revealed tiles stay lit; keep moving to uncover everything.</p>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d", { alpha: false });
+            const statsEl = document.getElementById("stats");
+            const legendEl = document.getElementById("legend");
+            const startOverlay = document.getElementById("startOverlay");
+            const startBtn = document.getElementById("startBtn");
+            const mapSizeInput = document.getElementById("mapSize");
+            const mapSizeValue = document.getElementById("mapSizeValue");
+            const visionInput = document.getElementById("visionRadius");
+            const visionValue = document.getElementById("visionValue");
+
+            const tileSize = 16;
+            let worldCols = 20;
+            let worldRows = 20;
+            const fogColor = "#555555"; // unknown space (fog)
+            const camera = { x: 0, y: 0 };
+            let visionRadius = 2; // reveals a (2*radius+1)^2 area
+
+            const items = [
+                { key: "tomato", color: "#ff4b5c", reward: 25 },
+                { key: "potato", color: "#b38b59", reward: 20 },
+                { key: "onion", color: "#d9c2ff", reward: 20 },
+                { key: "apple", color: "#ff2e2e", reward: 30 },
+                { key: "orange", color: "#ffa500", reward: 30 },
+                { key: "banana", color: "#ffe266", reward: 35 },
+                { key: "mango", color: "#ff9f1c", reward: 40 },
+                { key: "avocado", color: "#5a8f3e", reward: 35 },
+                { key: "coin", color: "#f7e02f", reward: 500, rare: true },
+            ];
+
+            const legends = [];
+            const world = []; // boolean passability map
+            const worldColors = []; // display color per tile
+            const placedItems = [];
+            const fog = new Set();
+            let reachableTiles = [];
+
+            const iconRes = 8; // 8x8 pixel icons to keep things crisp and Minecraft-y
+            const icons = {
+                robot: {
+                    palette: {
+                        ".": null,
+                        B: "#66fcf1",
+                        D: "#1f2833",
+                        W: "#ffffff",
+                        S: "#45a29e",
+                    },
+                    pixels: [
+                        "..BBBB..",
+                        ".BWWWWB.",
+                        ".BWWWWB.",
+                        ".BBBBBB.",
+                        ".BDDDDB.",
+                        ".BDSDB.",
+                        "..BSSB..",
+                        "..BBBB..",
+                    ],
+                },
+                tomato: {
+                    palette: { ".": null, R: "#ff4b5c", G: "#3fa34d", S: "#2a7c3f" },
+                    pixels: [
+                        "..RRRR..",
+                        ".RRRRRR.",
+                        ".RRGRRR.",
+                        ".RRRRRR.",
+                        ".RRRRRR.",
+                        ".RRRRRR.",
+                        "..SSS...",
+                        "...S....",
+                    ],
+                },
+                potato: {
+                    palette: { ".": null, P: "#b38b59", S: "#8c6239" },
+                    pixels: [
+                        "..PPPP..",
+                        ".PPPPPP.",
+                        ".PPPPPP.",
+                        ".PPPSPP.",
+                        ".PPPPPP.",
+                        ".PPPPPP.",
+                        ".PPPPPP.",
+                        "..PPPP..",
+                    ],
+                },
+                onion: {
+                    palette: { ".": null, O: "#d9c2ff", G: "#7b5ba7" },
+                    pixels: [
+                        "..OOOO..",
+                        ".OOOOOO.",
+                        ".OOOGOO.",
+                        ".OOOOOO.",
+                        ".OOOOOO.",
+                        ".OOOOOO.",
+                        "..OOOO..",
+                        "...OO...",
+                    ],
+                },
+                apple: {
+                    palette: { ".": null, A: "#ff2e2e", G: "#3fa34d" },
+                    pixels: [
+                        "..AAAA..",
+                        ".AAAAAA.",
+                        ".AAAAGA.",
+                        ".AAAAAA.",
+                        ".AAAAAA.",
+                        ".AAAAAA.",
+                        "..AAAA..",
+                        "...A....",
+                    ],
+                },
+                orange: {
+                    palette: { ".": null, O: "#ffa500", G: "#3fa34d", S: "#ff7f11" },
+                    pixels: [
+                        "..OOOO..",
+                        ".OOOOOO.",
+                        ".OOOOGO.",
+                        ".OOOSOO.",
+                        ".OOOOOO.",
+                        ".OOOOOO.",
+                        "..OOOO..",
+                        "...O....",
+                    ],
+                },
+                banana: {
+                    palette: { ".": null, Y: "#ffe266", D: "#d4b02a" },
+                    pixels: [
+                        "...YY...",
+                        "..YYY...",
+                        ".YYYY...",
+                        ".YYYYY..",
+                        ".YYYYY..",
+                        "..YYYY..",
+                        "...YYY..",
+                        "...D....",
+                    ],
+                },
+                mango: {
+                    palette: { ".": null, M: "#ff9f1c", R: "#ff6f59", G: "#3fa34d" },
+                    pixels: [
+                        "..MMMM..",
+                        ".MMMMMM.",
+                        ".MMMMRM.",
+                        ".MMMMMM.",
+                        ".MMMMMM.",
+                        ".MMMMMM.",
+                        ".MMMMMM.",
+                        "..GGG...",
+                    ],
+                },
+                avocado: {
+                    palette: { ".": null, A: "#5a8f3e", F: "#d9c2ff", S: "#3b5d2b" },
+                    pixels: [
+                        "..AAAA..",
+                        ".AAAAAA.",
+                        ".AAAFAA.",
+                        ".AAFAAA.",
+                        ".AAAAAA.",
+                        ".AAAAAA.",
+                        "..AAAA..",
+                        "..SSS...",
+                    ],
+                },
+                coin: {
+                    palette: { ".": null, C: "#f7e02f", D: "#d4b02a", H: "#fff8c2" },
+                    pixels: [
+                        "..CCCC..",
+                        ".CHCCHC.",
+                        ".CCCCCC.",
+                        ".CCDDCC.",
+                        ".CCCCCC.",
+                        ".CHCCHC.",
+                        "..CCCC..",
+                        "..DDDD..",
+                    ],
+                },
+            };
+
+            const iconCache = {};
+
+            const robot = {
+                x: Math.floor(worldCols / 2),
+                y: Math.floor(worldRows / 2),
+                speed: 7, // tiles per second
+                vx: 0,
+                vy: 0,
+                score: 0,
+                discovered: 0,
+                total: worldCols * worldRows,
+            };
+
+            const keys = new Set();
+            let lastTime = 0;
+            let started = false;
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            window.addEventListener("resize", resize);
+            resize();
+
+            function randomFreeColor() {
+                const whites = ["#f9fafb", "#f5f6f7", "#f1f2f4"];
+                return whites[Math.floor(Math.random() * whites.length)];
+            }
+
+            function drawIcon(icon, px, py, size = tileSize) {
+                const res = icon.pixels.length;
+                const step = size / res;
+                for (let y = 0; y < res; y++) {
+                    const row = icon.pixels[y];
+                    for (let x = 0; x < res; x++) {
+                        const code = row[x];
+                        const color = icon.palette[code];
+                        if (!color) continue;
+                        ctx.fillStyle = color;
+                        ctx.fillRect(Math.floor(px + x * step), Math.floor(py + y * step), Math.ceil(step), Math.ceil(step));
+                    }
+                }
+            }
+
+            function iconToDataUrl(key, size = 18) {
+                const icon = icons[key];
+                if (!icon) return null;
+                const cacheKey = `${key}-${size}`;
+                if (iconCache[cacheKey]) return iconCache[cacheKey];
+                const res = icon.pixels.length;
+                const step = size / res;
+                const cvs = document.createElement("canvas");
+                cvs.width = cvs.height = size;
+                const c = cvs.getContext("2d");
+                for (let y = 0; y < res; y++) {
+                    const row = icon.pixels[y];
+                    for (let x = 0; x < res; x++) {
+                        const code = row[x];
+                        const color = icon.palette[code];
+                        if (!color) continue;
+                        c.fillStyle = color;
+                        c.fillRect(Math.floor(x * step), Math.floor(y * step), Math.ceil(step), Math.ceil(step));
+                    }
+                }
+                const url = cvs.toDataURL();
+                iconCache[cacheKey] = url;
+                return url;
+            }
+
+            function setFree(x, y) {
+                world[y][x] = true;
+                worldColors[y][x] = randomFreeColor();
+            }
+
+            function setWall(x, y) {
+                world[y][x] = false;
+                worldColors[y][x] = "#0c0c0c";
+            }
+
+            const tileCoord = (v) => Math.floor(v);
+
+            function isWalkable(x, y) {
+                const cx = tileCoord(x);
+                const cy = tileCoord(y);
+                if (cx < 0 || cy < 0 || cx >= worldCols || cy >= worldRows) return false;
+                return world[cy][cx];
+            }
+
+            function carveDisk(cx, cy, radius) {
+                for (let y = -radius; y <= radius; y++) {
+                    for (let x = -radius; x <= radius; x++) {
+                        const px = cx + x;
+                        const py = cy + y;
+                        if (px < 0 || py < 0 || px >= worldCols || py >= worldRows) continue;
+                        if (x * x + y * y <= radius * radius) {
+                            setFree(px, py);
+                        }
+                    }
+                }
+            }
+
+            function computeReachable(sx, sy) {
+                const visited = new Set();
+                const tiles = [];
+                const queue = [[tileCoord(sx), tileCoord(sy)]];
+                while (queue.length) {
+                    const [x, y] = queue.shift();
+                    const key = `${x},${y}`;
+                    if (visited.has(key)) continue;
+                    visited.add(key);
+                    if (!world[y] || !world[y][x]) continue;
+                    tiles.push({ x, y });
+                    const neighbors = [
+                        [1, 0],
+                        [-1, 0],
+                        [0, 1],
+                        [0, -1],
+                    ];
+                    for (const [dx, dy] of neighbors) {
+                        const nx = x + dx;
+                        const ny = y + dy;
+                        if (nx < 0 || ny < 0 || nx >= worldCols || ny >= worldRows) continue;
+                        if (!world[ny][nx]) continue;
+                        if (!visited.has(`${nx},${ny}`)) queue.push([nx, ny]);
+                    }
+                }
+                return tiles;
+            }
+
+            function generateMap() {
+                world.length = 0;
+                worldColors.length = 0;
+                placedItems.length = 0;
+                legends.length = 0;
+                fog.clear();
+                robot.discovered = 0;
+                robot.score = 0;
+                reachableTiles = [];
+                for (let r = 0; r < worldRows; r++) {
+                    const passRow = [];
+                    const colorRow = [];
+                    for (let c = 0; c < worldCols; c++) {
+                        passRow.push(true);
+                        colorRow.push(randomFreeColor());
+                    }
+                    world.push(passRow);
+                    worldColors.push(colorRow);
+                }
+
+                const startCol = Math.floor(worldCols / 2);
+                const startRow = Math.floor(worldRows / 2);
+
+                // Place a few big wall rectangles to mimic office partitions
+                const wallCount = 3 + Math.floor(Math.random() * 2); // 3-4 walls
+                for (let i = 0; i < wallCount; i++) {
+                    const w = 8 + Math.floor(Math.random() * 12); // width 8-19
+                    const h = 8 + Math.floor(Math.random() * 12); // height 8-19
+                    const x = Math.max(1, Math.min(worldCols - w - 2, Math.floor(Math.random() * worldCols)));
+                    const y = Math.max(1, Math.min(worldRows - h - 2, Math.floor(Math.random() * worldRows)));
+
+                    // Skip if it would overlap start area buffer
+                    const buffer = 6;
+                    if (x <= startCol + buffer && x + w >= startCol - buffer && y <= startRow + buffer && y + h >= startRow - buffer) {
+                        continue;
+                    }
+                    for (let yy = y; yy < y + h; yy++) {
+                        for (let xx = x; xx < x + w; xx++) {
+                            setWall(xx, yy);
+                        }
+                    }
+                }
+
+                // Keep start area clear
+                carveDisk(startCol, startRow, 4);
+
+                robot.x = startCol;
+                robot.y = startRow;
+
+                reachableTiles = computeReachable(robot.x, robot.y);
+                robot.total = reachableTiles.length || worldCols * worldRows;
+
+                const area = worldCols * worldRows;
+                items.forEach((item) => {
+                    const base = item.rare ? 1 : Math.max(3, Math.floor(area / 400) + 3);
+                    const jitter = item.rare ? 0 : Math.floor(Math.random() * 2);
+                    const count = base + jitter;
+                    legends.push(item);
+                    for (let i = 0; i < count; i++) {
+                        placeItem(item.key);
+                    }
+                });
+
+                revealArea(robot.x, robot.y, visionRadius);
+                updateLegend();
+                updateStats();
+            }
+
+            function placeItem(key) {
+                if (!reachableTiles.length) return;
+                let tries = 0;
+                while (tries < 8000) {
+                    const spot = reachableTiles[Math.floor(Math.random() * reachableTiles.length)];
+                    const occupied = placedItems.some((it) => it.x === spot.x && it.y === spot.y);
+                    if (!occupied) {
+                        placedItems.push({ key, x: spot.x, y: spot.y });
+                        return;
+                    }
+                    tries++;
+                }
+            }
+
+            function revealTile(x, y) {
+                if (x < 0 || y < 0 || x >= worldCols || y >= worldRows) return;
+                const key = `${x},${y}`;
+                if (!fog.has(key)) {
+                    fog.add(key);
+                    robot.discovered++;
+                }
+            }
+
+            function revealArea(cx, cy, radius = visionRadius) {
+                const minX = Math.max(0, Math.floor(cx) - radius);
+                const maxX = Math.min(worldCols - 1, Math.floor(cx) + radius);
+                const minY = Math.max(0, Math.floor(cy) - radius);
+                const maxY = Math.min(worldRows - 1, Math.floor(cy) + radius);
+                for (let y = minY; y <= maxY; y++) {
+                    for (let x = minX; x <= maxX; x++) {
+                        revealTile(x, y);
+                    }
+                }
+            }
+
+            function setVelocity() {
+                let vx = 0;
+                let vy = 0;
+                if (keys.has("ArrowUp") || keys.has("KeyW")) vy -= 1;
+                if (keys.has("ArrowDown") || keys.has("KeyS")) vy += 1;
+                if (keys.has("ArrowLeft") || keys.has("KeyA")) vx -= 1;
+                if (keys.has("ArrowRight") || keys.has("KeyD")) vx += 1;
+                const mag = Math.hypot(vx, vy);
+                if (mag > 0) {
+                    robot.vx = vx / mag;
+                    robot.vy = vy / mag;
+                } else {
+                    robot.vx = 0;
+                    robot.vy = 0;
+                }
+            }
+
+            function update(dt) {
+                const step = robot.speed * dt;
+                let nextX = robot.x + robot.vx * step;
+                let nextY = robot.y + robot.vy * step;
+                nextX = Math.max(0, Math.min(worldCols - 1, nextX));
+                nextY = Math.max(0, Math.min(worldRows - 1, nextY));
+
+                // Axis-separated collision to allow sliding
+                if (isWalkable(nextX, robot.y)) {
+                    robot.x = nextX;
+                }
+                if (isWalkable(robot.x, nextY)) {
+                    robot.y = nextY;
+                }
+
+                revealArea(robot.x, robot.y, visionRadius);
+                collect();
+                updateStats();
+            }
+
+            function collect() {
+                const rx = tileCoord(robot.x);
+                const ry = tileCoord(robot.y);
+                for (let i = placedItems.length - 1; i >= 0; i--) {
+                    const item = placedItems[i];
+                    if (item.x === rx && item.y === ry) {
+                        const meta = items.find((t) => t.key === item.key);
+                        robot.score += meta.reward;
+                        placedItems.splice(i, 1);
+                    }
+                }
+            }
+
+            function updateStats() {
+                const explored = Math.floor((robot.discovered / robot.total) * 100);
+                statsEl.textContent = `Score: ${robot.score} | Explored: ${explored}% | Items remaining: ${placedItems.length}`;
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const colsOnScreen = Math.ceil(canvas.width / tileSize) + 2;
+                const rowsOnScreen = Math.ceil(canvas.height / tileSize) + 2;
+
+                const rx = tileCoord(robot.x);
+                const ry = tileCoord(robot.y);
+
+                camera.x = (robot.x + 0.5) * tileSize - canvas.width / 2;
+                camera.y = (robot.y + 0.5) * tileSize - canvas.height / 2;
+
+                const startCol = Math.floor(camera.x / tileSize);
+                const startRow = Math.floor(camera.y / tileSize);
+                const offsetX = -(camera.x - startCol * tileSize);
+                const offsetY = -(camera.y - startRow * tileSize);
+
+                for (let r = 0; r < rowsOnScreen; r++) {
+                    for (let c = 0; c < colsOnScreen; c++) {
+                        const worldCol = startCol + c;
+                        const worldRow = startRow + r;
+                        if (worldCol < 0 || worldRow < 0 || worldCol >= worldCols || worldRow >= worldRows) continue;
+                        const x = Math.floor(c * tileSize + offsetX);
+                        const y = Math.floor(r * tileSize + offsetY);
+                        ctx.fillStyle = worldColors[worldRow][worldCol];
+                        ctx.fillRect(x, y, tileSize, tileSize);
+                        const seen = fog.has(`${worldCol},${worldRow}`);
+                        if (!seen) {
+                            ctx.fillStyle = fogColor;
+                            ctx.fillRect(x, y, tileSize, tileSize);
+                        }
+                    }
+                }
+
+                // Draw items (only if discovered)
+                for (const item of placedItems) {
+                    if (!fog.has(`${item.x},${item.y}`)) continue;
+                    const screenX = Math.floor(item.x * tileSize - camera.x);
+                    const screenY = Math.floor(item.y * tileSize - camera.y);
+                    if (screenX < -tileSize || screenY < -tileSize || screenX > canvas.width || screenY > canvas.height) continue;
+                    const icon = icons[item.key];
+                    if (icon) {
+                        drawIcon(icon, screenX, screenY);
+                    } else {
+                        const meta = items.find((t) => t.key === item.key);
+                        ctx.fillStyle = meta ? meta.color : "#ffffff";
+                        ctx.fillRect(screenX + 2, screenY + 2, tileSize - 4, tileSize - 4);
+                    }
+                }
+
+                // Draw robot icon snapped to its tile
+                const robotTileX = tileCoord(robot.x);
+                const robotTileY = tileCoord(robot.y);
+                const robotScreenX = Math.floor(robotTileX * tileSize - camera.x);
+                const robotScreenY = Math.floor(robotTileY * tileSize - camera.y);
+                drawIcon(icons.robot, robotScreenX, robotScreenY);
+            }
+
+            function loop(timestamp) {
+                if (!started) return;
+                const dt = Math.min(0.05, (timestamp - lastTime) / 1000 || 0);
+                lastTime = timestamp;
+                setVelocity();
+                update(dt);
+                draw();
+                requestAnimationFrame(loop);
+            }
+
+            function updateLegend() {
+                legendEl.innerHTML = "";
+                legends.forEach((item) => {
+                    const el = document.createElement("div");
+                    el.className = "legend-item";
+                    const iconUrl = iconToDataUrl(item.key, 18);
+                    const img = iconUrl
+                        ? `<img src="${iconUrl}" alt="${item.key}" width="18" height="18" style="image-rendering: pixelated;">`
+                        : `<span class="swatch" style="background:${item.color}"></span>`;
+                    el.innerHTML = `${img}<span>${item.key} (+${item.reward})</span>`;
+                    legendEl.appendChild(el);
+                });
+            }
+
+            function startGame() {
+                // pull slider values
+                const size = Math.max(10, Math.min(80, parseInt(mapSizeInput.value, 10) || 20));
+                const vision = Math.max(1, Math.min(6, parseInt(visionInput.value, 10) || 2));
+                worldCols = size;
+                worldRows = size;
+                visionRadius = vision;
+                robot.total = worldCols * worldRows;
+
+                generateMap();
+                draw();
+
+                if (started) return;
+                started = true;
+                startOverlay.style.display = "none";
+                lastTime = performance.now();
+                requestAnimationFrame(loop);
+            }
+
+            mapSizeInput.addEventListener("input", () => {
+                mapSizeValue.textContent = mapSizeInput.value;
+            });
+
+            visionInput.addEventListener("input", () => {
+                visionValue.textContent = visionInput.value;
+            });
+
+            startBtn.addEventListener("click", startGame);
+
+            window.addEventListener("keydown", (e) => {
+                keys.add(e.code);
+            });
+
+            window.addEventListener("keyup", (e) => {
+                keys.delete(e.code);
+            });
+
+            generateMap();
+            draw();
+        })();
+    </script>
+</body>
+</html>
+
