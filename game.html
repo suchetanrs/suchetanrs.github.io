@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixel Robot Explorer</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
     <style>
         html, body {
             margin: 0;
@@ -122,6 +123,60 @@
             cursor: pointer;
         }
 
+        #endOverlay {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            z-index: 4;
+            flex-direction: column;
+            gap: 16px;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #endOverlay h2 {
+            margin: 0;
+            color: #66fcf1;
+            font-size: 18px;
+        }
+
+        #endOverlay button {
+            padding: 10px 18px;
+            font-size: 13px;
+            font-family: "Press Start 2P", "Courier New", monospace;
+            background: #66fcf1;
+            color: #0b0c10;
+            border: 2px solid #45a29e;
+            cursor: pointer;
+        }
+
+        #scorePopup {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translate(-50%, -6px);
+            z-index: 4;
+            font-size: 32px;
+            font-weight: 700;
+            font-family: "Press Start 2P", "Courier New", monospace;
+            color: #66fcf1;
+            text-shadow: 0 0 12px rgba(102, 252, 241, 0.8), 0 0 4px #0b0c10;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+            letter-spacing: 1px;
+        }
+
+        #scorePopup.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
         @media (max-width: 600px) {
             #hud {
                 width: 240px;
@@ -139,7 +194,7 @@
     <div id="startOverlay">
         <div style="max-width:480px;">
             <h1 style="margin:0 0 10px 0; color:#66fcf1; font-size:18px;">Pixel Robot Explorer</h1>
-            <p style="margin:0;">Pilot your robot, uncover the map, and collect fresh produce.<br>Find the gold coin for a massive bounty.</p>
+            <p style="margin:0;">Pilot your robot, uncover the map, and collect fresh produce.<br><br>Find the gold coin for a massive bounty.</p>
         </div>
         <div style="display:flex; flex-direction:column; gap:10px; align-items:center; color:#fff; font-size:12px;">
             <label style="display:flex; flex-direction:column; align-items:center; gap:4px;">
@@ -153,6 +208,13 @@
         </div>
         <button id="startBtn">Start Exploring</button>
     </div>
+    <div id="endOverlay">
+        <h2>All items collected!</h2>
+        <p id="endMessage" style="margin:0;"></p>
+        <p id="endStats" style="margin:0;"></p>
+        <button id="playAgainBtn">Play Again</button>
+    </div>
+    <div id="scorePopup"></div>
     <canvas id="canvas"></canvas>
 
     <div id="ui">
@@ -181,6 +243,11 @@
             const mapSizeValue = document.getElementById("mapSizeValue");
             const visionInput = document.getElementById("visionRadius");
             const visionValue = document.getElementById("visionValue");
+            const scorePopup = document.getElementById("scorePopup");
+            const endOverlay = document.getElementById("endOverlay");
+            const endMessage = document.getElementById("endMessage");
+            const endStats = document.getElementById("endStats");
+            const playAgainBtn = document.getElementById("playAgainBtn");
 
             const tileSize = 16;
             let worldCols = 20;
@@ -364,6 +431,7 @@
             const keys = new Set();
             let lastTime = 0;
             let started = false;
+            let popupTimer = null;
 
             function resize() {
                 canvas.width = window.innerWidth;
@@ -627,13 +695,34 @@
                         const meta = items.find((t) => t.key === item.key);
                         robot.score += meta.reward;
                         placedItems.splice(i, 1);
+                        showScorePopup(meta.reward, meta.color);
+                        if (!placedItems.length) finishGame();
                     }
                 }
+            }
+
+            function showScorePopup(points, color) {
+                if (!scorePopup) return;
+                scorePopup.textContent = `+${points}`;
+                scorePopup.style.color = color || "#66fcf1";
+                scorePopup.classList.add("show");
+                if (popupTimer) clearTimeout(popupTimer);
+                popupTimer = setTimeout(() => {
+                    scorePopup.classList.remove("show");
+                }, 2000);
             }
 
             function updateStats() {
                 const explored = Math.floor((robot.discovered / robot.total) * 100);
                 statsEl.textContent = `Score: ${robot.score} | Explored: ${explored}% | Items remaining: ${placedItems.length}`;
+            }
+
+            function finishGame() {
+                started = false;
+                const explored = Math.floor((robot.discovered / robot.total) * 100);
+                if (endMessage) endMessage.textContent = `Final Score: ${robot.score}`;
+                if (endStats) endStats.textContent = `Explored: ${explored}%`;
+                if (endOverlay) endOverlay.style.display = "flex";
             }
 
             function draw() {
@@ -732,6 +821,7 @@
                 if (started) return;
                 started = true;
                 startOverlay.style.display = "none";
+                if (endOverlay) endOverlay.style.display = "none";
                 lastTime = performance.now();
                 requestAnimationFrame(loop);
             }
@@ -745,6 +835,10 @@
             });
 
             startBtn.addEventListener("click", startGame);
+            playAgainBtn.addEventListener("click", () => {
+                started = false;
+                startGame();
+            });
 
             window.addEventListener("keydown", (e) => {
                 keys.add(e.code);
