@@ -184,17 +184,25 @@
             transform: translate(-50%, 0);
         }
 
-        #touchControls {
+        #mobileControls {
             position: absolute;
             right: 12px;
             top: 12px;
+            display: none;
+            align-items: flex-start;
+            gap: 10px;
+            z-index: 4;
+            pointer-events: auto;
+        }
+
+        #touchControls {
+            position: static;
             width: 160px;
             height: 160px;
             display: none;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
             gap: 8px;
-            z-index: 4;
             pointer-events: auto;
             user-select: none;
             -webkit-user-select: none;
@@ -221,11 +229,32 @@
             background: rgba(102, 252, 241, 0.35);
         }
 
+        #togglePanelsBtn {
+            padding: 10px 12px;
+            font-size: 11px;
+            font-family: "Press Start 2P", "Courier New", monospace;
+            background: rgba(102, 252, 241, 0.18);
+            color: #66fcf1;
+            border: 2px solid #45a29e;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(102, 252, 241, 0.35);
+            line-height: 1.4;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        #togglePanelsBtn:active {
+            background: rgba(102, 252, 241, 0.35);
+        }
+
         @media (max-width: 900px) {
+            #mobileControls {
+                display: flex;
+                flex-direction: row;
+            }
             #touchControls {
                 display: grid;
-                top: 12px;
-                right: 12px;
             }
             #ui {
                 flex-direction: column;
@@ -275,16 +304,19 @@
         <button id="playAgainBtn">Play Again</button>
     </div>
     <div id="scorePopup"></div>
-    <div id="touchControls" aria-label="Touch controls">
-        <div></div>
-        <button class="touch-btn" data-dir="up">▲</button>
-        <div></div>
-        <button class="touch-btn" data-dir="left">◄</button>
-        <div></div>
-        <button class="touch-btn" data-dir="right">►</button>
-        <div></div>
-        <button class="touch-btn" data-dir="down">▼</button>
-        <div></div>
+    <div id="mobileControls">
+        <button id="togglePanelsBtn" aria-pressed="false">Hide Panels</button>
+        <div id="touchControls" aria-label="Touch controls">
+            <div></div>
+            <button class="touch-btn" data-dir="up">▲</button>
+            <div></div>
+            <button class="touch-btn" data-dir="left">◄</button>
+            <div></div>
+            <button class="touch-btn" data-dir="right">►</button>
+            <div></div>
+            <button class="touch-btn" data-dir="down">▼</button>
+            <div></div>
+        </div>
     </div>
     <canvas id="canvas"></canvas>
 
@@ -319,8 +351,11 @@
             const endMessage = document.getElementById("endMessage");
             const endStats = document.getElementById("endStats");
             const playAgainBtn = document.getElementById("playAgainBtn");
+            const ui = document.getElementById("ui");
+            const mobileControls = document.getElementById("mobileControls");
             const touchControls = document.getElementById("touchControls");
             const touchButtons = Array.from(document.querySelectorAll(".touch-btn"));
+            const togglePanelsBtn = document.getElementById("togglePanelsBtn");
 
             const tileSize = 16;
             let worldCols = 20;
@@ -328,6 +363,8 @@
             const fogColor = "#555555"; // unknown space (fog)
             const camera = { x: 0, y: 0 };
             let visionRadius = 2; // reveals a (2*radius+1)^2 area
+            const uiDefaultDisplay = getComputedStyle(ui).display || "flex";
+            let panelsHidden = false;
 
             const items = [
                 { key: "tomato", color: "#ff4b5c", reward: 25 },
@@ -791,6 +828,15 @@
                 statsEl.textContent = `Score: ${robot.score} | Explored: ${explored}% | Items remaining: ${placedItems.length}`;
             }
 
+            function updatePanelVisibility() {
+                if (!ui) return;
+                ui.style.display = panelsHidden ? "none" : uiDefaultDisplay;
+                if (togglePanelsBtn) {
+                    togglePanelsBtn.textContent = panelsHidden ? "Show Panels" : "Hide Panels";
+                    togglePanelsBtn.setAttribute("aria-pressed", panelsHidden ? "true" : "false");
+                }
+            }
+
             function finishGame() {
                 started = false;
                 const explored = Math.floor((robot.discovered / robot.total) * 100);
@@ -891,11 +937,13 @@
 
                 generateMap();
                 draw();
+                updatePanelVisibility();
 
                 if (started) return;
                 started = true;
                 startOverlay.style.display = "none";
                 if (endOverlay) endOverlay.style.display = "none";
+                if (mobileControls) mobileControls.style.display = isTouch ? "flex" : "none";
                 if (touchControls && isTouch) touchControls.style.display = "grid";
                 lastTime = performance.now();
                 requestAnimationFrame(loop);
@@ -914,6 +962,12 @@
                 started = false;
                 startGame();
             });
+            if (togglePanelsBtn) {
+                togglePanelsBtn.addEventListener("click", () => {
+                    panelsHidden = !panelsHidden;
+                    updatePanelVisibility();
+                });
+            }
 
             window.addEventListener("keydown", (e) => {
                 keys.add(e.code);
@@ -959,6 +1013,7 @@
 
             generateMap();
             draw();
+            updatePanelVisibility();
         })();
     </script>
 </body>
