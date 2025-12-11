@@ -304,6 +304,10 @@
         <button id="playAgainBtn">Play Again</button>
     </div>
     <div id="scorePopup"></div>
+    <audio id="bgm" preload="auto" loop aria-hidden="true" style="display:none;">
+        <source src="https://a.slack-edge.com/production-standard-llvm/sounds/smooth_jazz.ogg" type="audio/ogg">
+        <source src="https://a.slack-edge.com/production-standard-llvm/sounds/smooth_jazz.mp3" type="audio/mpeg">
+    </audio>
     <div id="mobileControls">
         <button id="togglePanelsBtn" aria-pressed="false">Hide Panels</button>
         <div id="touchControls" aria-label="Touch controls">
@@ -356,6 +360,7 @@
             const touchControls = document.getElementById("touchControls");
             const touchButtons = Array.from(document.querySelectorAll(".touch-btn"));
             const togglePanelsBtn = document.getElementById("togglePanelsBtn");
+            const bgm = document.getElementById("bgm");
 
             const tileSize = 16;
             let worldCols = 20;
@@ -934,6 +939,17 @@
                 worldRows = size;
                 visionRadius = vision;
                 robot.total = worldCols * worldRows;
+
+                if (bgm) {
+                    bgm.volume = 0.35;
+                    bgm.currentTime = 0;
+                    const playPromise = bgm.play();
+                    if (playPromise && playPromise.catch) {
+                        playPromise.catch(() => {
+                            /* autoplay can be blocked until user interacts; ignore */
+                        });
+                    }
+                }
 
                 generateMap();
                 draw();
