@@ -20,7 +20,7 @@
 
         #ui {
             position: absolute;
-            top: 12px;
+            bottom: 12px;
             left: 12px;
             right: 12px;
             display: flex;
@@ -181,8 +181,8 @@
 
         #touchControls {
             position: absolute;
-            right: 16px;
-            bottom: 16px;
+            right: 12px;
+            top: 12px;
             width: 160px;
             height: 160px;
             display: none;
@@ -214,10 +214,15 @@
         @media (max-width: 900px) {
             #touchControls {
                 display: grid;
+                top: 12px;
+                right: 12px;
             }
             #ui {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: stretch;
+                bottom: 12px;
+                left: 12px;
+                right: 12px;
             }
         }
 
@@ -250,7 +255,7 @@
                 <input id="visionRadius" type="range" min="1" max="6" step="1" value="2">
             </label>
         </div>
-        <button id="startBtn">Start Exploring</button>
+        <button id="startBtn">Start Navigating</button>
     </div>
     <div id="endOverlay">
         <h2>All items collected!</h2>
