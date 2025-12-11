@@ -15,6 +15,7 @@
             background: #0b0c10;
             color: #ffffff;
             font-family: "Press Start 2P", "Courier New", monospace;
+            touch-action: none;
         }
 
         #ui {
@@ -95,6 +96,7 @@
             image-rendering: crisp-edges;
             display: block;
             background: #0b0c10;
+            touch-action: none;
         }
 
         #startOverlay {
@@ -177,6 +179,48 @@
             transform: translate(-50%, 0);
         }
 
+        #touchControls {
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            width: 160px;
+            height: 160px;
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 8px;
+            z-index: 4;
+            pointer-events: auto;
+            user-select: none;
+        }
+
+        .touch-btn {
+            background: rgba(102, 252, 241, 0.18);
+            border: 2px solid #45a29e;
+            color: #66fcf1;
+            border-radius: 8px;
+            font-family: "Press Start 2P", "Courier New", monospace;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(102, 252, 241, 0.35);
+        }
+
+        .touch-btn:active {
+            background: rgba(102, 252, 241, 0.35);
+        }
+
+        @media (max-width: 900px) {
+            #touchControls {
+                display: grid;
+            }
+            #ui {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
         @media (max-width: 600px) {
             #hud {
                 width: 240px;
@@ -215,6 +259,17 @@
         <button id="playAgainBtn">Play Again</button>
     </div>
     <div id="scorePopup"></div>
+    <div id="touchControls" aria-label="Touch controls">
+        <div></div>
+        <button class="touch-btn" data-dir="up">▲</button>
+        <div></div>
+        <button class="touch-btn" data-dir="left">◄</button>
+        <div></div>
+        <button class="touch-btn" data-dir="right">►</button>
+        <div></div>
+        <button class="touch-btn" data-dir="down">▼</button>
+        <div></div>
+    </div>
     <canvas id="canvas"></canvas>
 
     <div id="ui">
@@ -248,6 +303,8 @@
             const endMessage = document.getElementById("endMessage");
             const endStats = document.getElementById("endStats");
             const playAgainBtn = document.getElementById("playAgainBtn");
+            const touchControls = document.getElementById("touchControls");
+            const touchButtons = Array.from(document.querySelectorAll(".touch-btn"));
 
             const tileSize = 16;
             let worldCols = 20;
@@ -432,6 +489,7 @@
             let lastTime = 0;
             let started = false;
             let popupTimer = null;
+            const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
             function resize() {
                 canvas.width = window.innerWidth;
@@ -822,6 +880,7 @@
                 started = true;
                 startOverlay.style.display = "none";
                 if (endOverlay) endOverlay.style.display = "none";
+                if (touchControls && isTouch) touchControls.style.display = "grid";
                 lastTime = performance.now();
                 requestAnimationFrame(loop);
             }
@@ -847,6 +906,42 @@
             window.addEventListener("keyup", (e) => {
                 keys.delete(e.code);
             });
+
+            function handleTouch(dir, active) {
+                const code = {
+                    up: "ArrowUp",
+                    down: "ArrowDown",
+                    left: "ArrowLeft",
+                    right: "ArrowRight",
+                }[dir];
+                if (!code) return;
+                if (active) {
+                    keys.add(code);
+                } else {
+                    keys.delete(code);
+                }
+            }
+
+            touchButtons.forEach((btn) => {
+                const dir = btn.dataset.dir;
+                ["pointerdown", "pointerenter"].forEach((evt) => {
+                    btn.addEventListener(evt, (e) => {
+                        if (e.pointerType === "mouse" && isTouch) return;
+                        e.preventDefault();
+                        handleTouch(dir, true);
+                    });
+                });
+                ["pointerup", "pointerleave", "pointercancel"].forEach((evt) => {
+                    btn.addEventListener(evt, (e) => {
+                        if (e.pointerType === "mouse" && isTouch) return;
+                        e.preventDefault();
+                        handleTouch(dir, false);
+                    });
+                });
+            });
+
+            // Prevent the page from panning while using touch controls
+            canvas.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
 
             generateMap();
             draw();
