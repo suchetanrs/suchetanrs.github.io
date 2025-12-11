@@ -25,10 +25,11 @@
             right: 12px;
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: flex-end;
             gap: 12px;
             z-index: 2;
             pointer-events: none;
+            max-height: 42vh;
         }
 
         #hud {
@@ -38,6 +39,8 @@
             border-radius: 6px;
             width: 320px;
             max-width: 50vw;
+            max-height: 42vh;
+            overflow: auto;
         }
 
         #hud h1 {
@@ -81,6 +84,8 @@
             font-size: 11px;
             line-height: 1.4;
             pointer-events: auto;
+            max-height: 42vh;
+            overflow: auto;
         }
 
         #instructions h2 {
@@ -192,6 +197,8 @@
             z-index: 4;
             pointer-events: auto;
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
         }
 
         .touch-btn {
@@ -205,6 +212,9 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 0 10px rgba(102, 252, 241, 0.35);
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
         .touch-btn:active {
@@ -223,6 +233,7 @@
                 bottom: 12px;
                 left: 12px;
                 right: 12px;
+                max-height: 48vh;
             }
         }
 
@@ -929,16 +940,14 @@
 
             touchButtons.forEach((btn) => {
                 const dir = btn.dataset.dir;
-                ["pointerdown", "pointerenter"].forEach((evt) => {
+                ["pointerdown"].forEach((evt) => {
                     btn.addEventListener(evt, (e) => {
-                        if (e.pointerType === "mouse" && isTouch) return;
                         e.preventDefault();
                         handleTouch(dir, true);
                     });
                 });
                 ["pointerup", "pointerleave", "pointercancel"].forEach((evt) => {
                     btn.addEventListener(evt, (e) => {
-                        if (e.pointerType === "mouse" && isTouch) return;
                         e.preventDefault();
                         handleTouch(dir, false);
                     });
