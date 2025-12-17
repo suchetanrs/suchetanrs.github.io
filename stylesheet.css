@@ -64,14 +64,64 @@
 }
 
 a {
-  color: #1772d0;
+  color: var(--link);
   text-decoration: none;
 }
 
 a:focus,
 a:hover {
-  color: #f09228;
+  color: var(--link-hover);
   text-decoration: none;
+}
+
+.bg_colour {
+  background: var(--bg);
+  color: var(--text);
+}
+
+:root {
+  --bg: #ffffff;
+  --text: #111111;
+  --muted: #444444;
+  --link: #1772d0;
+  --link-hover: #f09228;
+  --border: #e3e3e3;
+  --surface: #ffffff;
+  --surface-2: #f5f5f5;
+  --button: #ffffff;
+  --button-border: #cfcfcf;
+}
+
+body.dark-mode {
+  --bg: #0b0c10;
+  --text: #e8e8e8;
+  --muted: #b7b7b7;
+  --link: #6fb7ff;
+  --link-hover: #f0b13a;
+  --border: #2a2a2a;
+  --surface: #111418;
+  --surface-2: #1b2230;
+  --button: #1b2230;
+  --button-border: #2f3a4d;
+}
+
+body.bg_colour {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body.bg_colour,
+body.bg_colour td,
+body.bg_colour th,
+body.bg_colour tr,
+body.bg_colour p {
+  color: var(--text);
+}
+
+/* Make HR separators match theme */
+hr.soft {
+  border: 0;
+  border-top: 1px solid var(--border);
 }
 
 .link-plain,
@@ -175,6 +225,10 @@ span.highlight {
   background-color: #ffffd0;
 }
 
+body.dark-mode span.highlight {
+  background-color: #2b2a00;
+}
+
 .cta {
   display: flex;
   justify-content: center;
@@ -201,9 +255,18 @@ span.highlight {
 
 .btn-secondary:hover,
 .btn-secondary:focus {
-  background-color: #ffffff;
+  background-color: var(--bg);
   /* border-color: #bdbdbd; */
   /* color: #f09228; */
+}
+
+body.dark-mode .btn-secondary {
+  color: var(--link);
+}
+
+body.dark-mode .btn-secondary:hover,
+body.dark-mode .btn-secondary:focus {
+  background-color: var(--surface-2);
 }
 
 .quick-links {
@@ -237,14 +300,14 @@ span.highlight {
 .news-scroll.is-overflowing::after {
   bottom: 0;
   margin-top: -28px;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+  background: linear-gradient(to bottom, transparent, var(--bg));
 }
 
 /* Top fade appears once you scroll down (indicates content above) */
 .news-scroll.is-overflowing:not(.is-at-top)::before {
   top: 0;
   margin-bottom: -28px;
-  background: linear-gradient(to top, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+  background: linear-gradient(to top, transparent, var(--bg));
 }
 
 .news-scroll.is-at-top::before {
@@ -266,11 +329,11 @@ span.highlight {
 .news-year {
   margin: 12px 0 6px;
   padding-top: 10px;
-  border-top: 1px solid #e3e3e3;
+  border-top: 1px solid var(--border);
   /* Keep year labels readable even when entries are small */
   font-size: 1.15em;
   font-weight: 700;
-  color: #666;
+  color: var(--muted);
   letter-spacing: 0.5px;
 }
 
@@ -283,6 +346,7 @@ span.highlight {
 /* Collapsible section toggles: show an arrow that reflects open/closed state */
 button.collapsible {
   cursor: pointer;
+  color: inherit;
 }
 
 button.collapsible heading::before {
@@ -294,13 +358,13 @@ button.collapsible heading::before {
   line-height: 1;
   transform: translateY(-0.3em);
   transform-origin: 50% 55%;
-  color: #555;
+  color: var(--muted);
   transition: transform 150ms ease, color 150ms ease;
 }
 
 button.collapsible[aria-expanded="true"] heading::before {
   transform: translateY(-0.2em) rotate(90deg);
-  color: #111;
+  color: var(--text);
 }
 
 /* Experience: keep role/company header as normal body-sized text */
@@ -351,6 +415,40 @@ button.collapsible[aria-expanded="true"] heading::before {
 .experience-meta {
   margin-top: 4px;
   margin-bottom: 10px;
-  color: #444;
+  color: var(--muted);
   font-size: 0.95em;
+}
+
+/* Theme toggle button (fixed top-right) */
+.theme-toggle {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 9999;
+  padding: 6px 10px;
+  font-size: 14px;
+  line-height: 1;
+  border-radius: 999px;
+  border: 1px solid var(--button-border);
+  background: var(--button);
+  color: var(--text);
+}
+
+.theme-toggle:focus,
+.theme-toggle:hover {
+  background: var(--surface-2);
+}
+
+/* Theme-dependent logo swapping (used in Experience section).
+   Needs to beat `#content-experience .one img { display: block; ... }` specificity. */
+#content-experience img.theme-logo-dark {
+  display: none;
+}
+
+body.dark-mode #content-experience img.theme-logo-light {
+  display: none;
+}
+
+body.dark-mode #content-experience img.theme-logo-dark {
+  display: block;
 }
