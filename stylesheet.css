@@ -439,6 +439,53 @@ button.collapsible[aria-expanded="true"] heading::before {
   background: var(--surface-2);
 }
 
+/* Back to top button (fixed bottom-right) */
+.back-to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9998;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--button-border);
+  background: var(--button);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  line-height: 1;
+  /* box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12); */
+
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease, background-color 180ms ease;
+}
+
+.back-to-top:hover,
+.back-to-top:focus {
+  background: var(--surface-2);
+}
+
+.back-to-top:focus {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+
+.back-to-top.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top {
+    transition: none;
+  }
+}
+
 /* Theme-dependent logo swapping (used in Experience section).
    Needs to beat `#content-experience .one img { display: block; ... }` specificity. */
 #content-experience img.theme-logo-dark {
