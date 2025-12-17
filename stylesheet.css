@@ -279,3 +279,26 @@ span.highlight {
   padding-top: 0;
   border-top: 0;
 }
+
+/* Collapsible section toggles: show an arrow that reflects open/closed state */
+button.collapsible {
+  cursor: pointer;
+}
+
+button.collapsible heading::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 10px;
+  /* Inherit <heading>'s font size so the arrow matches the text size */
+  font-size: 0.6em;
+  line-height: 1;
+  transform: translateY(-0.3em);
+  transform-origin: 50% 55%;
+  color: #555;
+  transition: transform 150ms ease, color 150ms ease;
+}
+
+button.collapsible[aria-expanded="true"] heading::before {
+  transform: translateY(-0.2em) rotate(90deg);
+  color: #111;
+}
