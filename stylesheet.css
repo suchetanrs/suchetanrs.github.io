@@ -302,3 +302,55 @@ button.collapsible[aria-expanded="true"] heading::before {
   transform: translateY(-0.2em) rotate(90deg);
   color: #111;
 }
+
+/* Experience: keep role/company header as normal body-sized text */
+.experience-header {
+  font-size: inherit;
+  line-height: 1.2;
+}
+
+.experience-role {
+  color: gray;
+  font-weight: 700;
+}
+
+.experience-sep {
+  color: #999;
+  padding: 0 6px;
+}
+
+.experience-org {
+  font-weight: 700;
+}
+
+/* Make Experience entries more compact (without affecting other tables) */
+#content-experience .experience-logo-cell {
+  padding: 40px 20px 50px 50px;
+}
+
+#content-experience .experience-content-cell {
+  padding: 40px 6px 12px;
+}
+
+/* Override the global `.one` sizing only for Experience logos (global `.one` is 160x160). */
+#content-experience .one {
+  width: 160px;
+  height: auto;
+}
+
+#content-experience .one img {
+  display: block;
+  max-width: 160px;
+  height: auto;
+}
+
+.experience-header {
+  margin: 0;
+}
+
+.experience-meta {
+  margin-top: 4px;
+  margin-bottom: 10px;
+  color: #444;
+  font-size: 0.95em;
+}
