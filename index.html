@@ -590,12 +590,8 @@ $(function () {
   } else if (saved === 'light') {
     apply(false);
   } else {
-    // Default: follow system preference if available
-    var prefersDark = false;
-    try {
-      prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    } catch (e) {}
-    apply(prefersDark);
+    // Default: always light (unless user explicitly chose dark earlier)
+    apply(false);
   }
 
   btn.addEventListener('click', function () {
