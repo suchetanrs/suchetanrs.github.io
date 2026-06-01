@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Motion Lab</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@300;500;700&display=swap');
+
+  :root {
+    --bg: #060810;
+    --panel: #0d1117;
+    --border: #1e2530;
+    --acc-x: #ff3b6e;
+    --acc-y: #00e5ff;
+    --acc-z: #b3ff00;
+    --gyr-x: #ff9500;
+    --gyr-y: #bf5fff;
+    --gyr-z: #00ffb3;
+    --text: #e2e8f0;
+    --muted: #4a5568;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Space Grotesk', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* Grid noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; padding: 16px; max-width: 480px; margin: 0 auto; }
+
+  /* Header */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0 20px;
+  }
+  .logo {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--acc-y); }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted);
+    transition: background .3s;
+    box-shadow: 0 0 0 0 transparent;
+  }
+  .status-dot.active {
+    background: var(--acc-z);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(179,255,0,.6); }
+    70%  { box-shadow: 0 0 0 8px rgba(179,255,0,0); }
+    100% { box-shadow: 0 0 0 0 rgba(179,255,0,0); }
+  }
+
+  /* Start screen */
+  #start-screen {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 70dvh; gap: 24px; text-align: center;
+  }
+  .icon-ring {
+    width: 96px; height: 96px; border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .icon-ring::before {
+    content: '';
+    position: absolute; inset: -8px; border-radius: 50%;
+    border: 1px solid rgba(0,229,255,.15);
+    animation: spin 8s linear infinite;
+  }
+  .icon-ring::after {
+    content: '';
+    position: absolute; inset: -16px; border-radius: 50%;
+    border: 1px dashed rgba(0,229,255,.07);
+    animation: spin 14s linear infinite reverse;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .icon-ring svg { width: 40px; height: 40px; }
+
+  #start-screen h1 {
+    font-size: 28px; font-weight: 700; letter-spacing: -.02em;
+    line-height: 1.2;
+  }
+  #start-screen h1 em { font-style: normal; color: var(--acc-y); }
+  #start-screen p { color: var(--muted); font-size: 14px; line-height: 1.6; max-width: 280px; }
+
+  .btn-start {
+    background: var(--acc-y);
+    color: #000;
+    border: none;
+    padding: 14px 40px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn-start:active { transform: scale(.97); }
+  .btn-start:hover { box-shadow: 0 0 24px rgba(179,255,0,.35); }
+
+  /* Main dashboard */
+  #dashboard { display: none; gap: 16px; flex-direction: column; }
+  #dashboard.visible { display: flex; }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 4px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 4px;
+  }
+  .tab {
+    flex: 1; padding: 8px 4px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+    text-align: center; border-radius: 5px;
+    cursor: pointer; color: var(--muted);
+    transition: all .2s; border: none; background: transparent;
+    text-transform: uppercase;
+  }
+  .tab.active { background: #1a2030; color: var(--text); }
+
+  /* Live value cards */
+  .values-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+  }
+  .val-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 10px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .val-label {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: .12em; text-transform: uppercase;
+  }
+  .val-num {
+    font-family: var(--mono); font-size: 18px; font-weight: 600;
+    letter-spacing: -.02em; line-height: 1;
+  }
+  .val-unit { font-size: 9px; color: var(--muted); font-family: var(--mono); }
+
+  /* Chart panel */
+  .chart-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+  }
+  .chart-header {
+    padding: 10px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .chart-title { font-size: 11px; font-family: var(--mono); letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
+  .legend { display: flex; gap: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .legend-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  canvas.chart { width: 100%; height: 140px; display: block; }
+
+  /* Orientation ball */
+  .orientation-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .orient-title { font-size: 11px; font-family: var(--mono); letter-spacing: .1em; color: var(--muted); text-transform: uppercase; align-self: flex-start; }
+  .ball-container {
+    width: 120px; height: 120px; position: relative;
+    background: radial-gradient(circle at 35% 35%, #1a2540, #060810);
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .ball-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--acc-x);
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%; left: 50%;
+    box-shadow: 0 0 12px var(--acc-x);
+    transition: top .05s, left .05s;
+  }
+  .ball-cross {
+    position: absolute; inset: 0; display: flex;
+    align-items: center; justify-content: center; pointer-events: none;
+  }
+  .ball-cross::before, .ball-cross::after {
+    content: ''; position: absolute;
+    background: rgba(255,255,255,.06);
+  }
+  .ball-cross::before { width: 1px; height: 100%; }
+  .ball-cross::after { width: 100%; height: 1px; }
+
+  /* Stats row */
+  .stats-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .stat-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px;
+  }
+  .stat-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+  .stat-val { font-family: var(--mono); font-size: 20px; font-weight: 600; }
+
+  /* Error */
+  #error-msg {
+    display: none; background: rgba(255,59,110,.1);
+    border: 1px solid rgba(255,59,110,.3);
+    border-radius: 8px; padding: 14px;
+    font-size: 13px; line-height: 1.6; color: #ff8fab;
+    font-family: var(--mono);
+  }
+
+  .section-hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">Motion<span>Lab</span></div>
+    <div class="status-dot" id="status-dot"></div>
+  </header>
+
+  <!-- Start screen -->
+  <div id="start-screen">
+    <div class="icon-ring">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="3" fill="#00e5ff"/>
+        <path d="M20 8 L20 14" stroke="#ff3b6e" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M20 26 L20 32" stroke="#ff3b6e" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M8 20 L14 20" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M26 20 L32 20" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M11.7 11.7 L15.9 15.9" stroke="#b3ff00" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M24.1 24.1 L28.3 28.3" stroke="#b3ff00" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M28.3 11.7 L24.1 15.9" stroke="#b3ff00" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M15.9 24.1 L11.7 28.3" stroke="#b3ff00" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <h1>iPhone<br><em>Motion Lab</em></h1>
+    </div>
+    <p>Live accelerometer, gyroscope &amp; orientation data visualised in real time.</p>
+    <button class="btn-start" id="btn-start" onclick="requestPermission()">Activate Sensors</button>
+    <div id="error-msg"></div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('accel')">Accel</button>
+      <button class="tab" onclick="switchTab('gyro')">Gyro</button>
+      <button class="tab" onclick="switchTab('orient')">Orient</button>
+    </div>
+
+    <!-- ACCEL TAB -->
+    <div id="tab-accel">
+      <div class="values-grid" style="margin-bottom:8px">
+        <div class="val-card">
+          <div class="val-label" style="color:var(--acc-x)">X</div>
+          <div class="val-num" id="ax" style="color:var(--acc-x)">0.00</div>
+          <div class="val-unit">m/s²</div>
+        </div>
+        <div class="val-card">
+          <div class="val-label" style="color:var(--acc-y)">Y</div>
+          <div class="val-num" id="ay" style="color:var(--acc-y)">0.00</div>
+          <div class="val-unit">m/s²</div>
+        </div>
+        <div class="val-card">
+          <div class="val-label" style="color:var(--acc-z)">Z</div>
+          <div class="val-num" id="az" style="color:var(--acc-z)">0.00</div>
+          <div class="val-unit">m/s²</div>
+        </div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-header">
+          <span class="chart-title">Acceleration</span>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--acc-x)"></div>X</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--acc-y)"></div>Y</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--acc-z)"></div>Z</div>
+          </div>
+        </div>
+        <canvas class="chart" id="chart-accel"></canvas>
+      </div>
+      <div class="stats-row" style="margin-top:8px">
+        <div class="stat-card">
+          <div class="stat-label">Magnitude</div>
+          <div class="stat-val" id="accel-mag" style="color:var(--acc-y)">0.00</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Peak</div>
+          <div class="stat-val" id="accel-peak" style="color:var(--acc-x)">0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GYRO TAB -->
+    <div id="tab-gyro" class="section-hidden">
+      <div class="values-grid" style="margin-bottom:8px">
+        <div class="val-card">
+          <div class="val-label" style="color:var(--gyr-x)">α</div>
+          <div class="val-num" id="gx" style="color:var(--gyr-x)">0.00</div>
+          <div class="val-unit">deg/s</div>
+        </div>
+        <div class="val-card">
+          <div class="val-label" style="color:var(--gyr-y)">β</div>
+          <div class="val-num" id="gy" style="color:var(--gyr-y)">0.00</div>
+          <div class="val-unit">deg/s</div>
+        </div>
+        <div class="val-card">
+          <div class="val-label" style="color:var(--gyr-z)">γ</div>
+          <div class="val-num" id="gz" style="color:var(--gyr-z)">0.00</div>
+          <div class="val-unit">deg/s</div>
+        </div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-header">
+          <span class="chart-title">Rotation Rate</span>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--gyr-x)"></div>α</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--gyr-y)"></div>β</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--gyr-z)"></div>γ</div>
+          </div>
+        </div>
+        <canvas class="chart" id="chart-gyro"></canvas>
+      </div>
+      <div class="stats-row" style="margin-top:8px">
+        <div class="stat-card">
+          <div class="stat-label">Total Rate</div>
+          <div class="stat-val" id="gyro-mag" style="color:var(--gyr-y)">0.00</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Peak</div>
+          <div class="stat-val" id="gyro-peak" style="color:var(--gyr-x)">0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORIENT TAB -->
+    <div id="tab-orient" class="section-hidden">
+      <div class="orientation-panel">
+        <div class="orient-title">Tilt Ball</div>
+        <div class="ball-container" id="ball-container">
+          <div class="ball-cross"></div>
+          <div class="ball-dot" id="ball-dot"></div>
+        </div>
+      </div>
+      <div class="values-grid" style="margin-top:8px">
+        <div class="val-card">
+          <div class="val-label" style="color:var(--acc-x)">Alpha</div>
+          <div class="val-num" id="oa" style="color:var(--acc-x)">0</div>
+          <div class="val-unit">° compass</div>
+        </div>
+        <div class="val-card">
+          <div class="val-label" style="color:var(--acc-y)">Beta</div>
+          <div class="val-num" id="ob" style="color:var(--acc-y)">0</div>
+          <div class="val-unit">° tilt fb</div>
+        </div>
+        <div class="val-card">
+          <div class="val-label" style="color:var(--acc-z)">Gamma</div>
+          <div class="val-num" id="og" style="color:var(--acc-z)">0</div>
+          <div class="val-unit">° tilt lr</div>
+        </div>
+      </div>
+      <div class="chart-panel" style="margin-top:8px">
+        <div class="chart-header">
+          <span class="chart-title">Orientation</span>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--acc-x)"></div>α</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--acc-y)"></div>β</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--acc-z)"></div>γ</div>
+          </div>
+        </div>
+        <canvas class="chart" id="chart-orient"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BUFFER = 120;
+const GRAVITY = 9.80665;
+
+let activeTab = 'accel';
+let accelPeak = 0, gyroPeak = 0;
+
+const data = {
+  accel: { x: new Array(BUFFER).fill(0), y: new Array(BUFFER).fill(0), z: new Array(BUFFER).fill(0) },
+  gyro:  { x: new Array(BUFFER).fill(0), y: new Array(BUFFER).fill(0), z: new Array(BUFFER).fill(0) },
+  orient:{ a: new Array(BUFFER).fill(0), b: new Array(BUFFER).fill(0), g: new Array(BUFFER).fill(0) },
+};
+
+function push(arr, val) { arr.push(val); if (arr.length > BUFFER) arr.shift(); }
+
+// ── Permission ──────────────────────────────────────────────────────────────
+async function requestPermission() {
+  const errEl = document.getElementById('error-msg');
+  errEl.style.display = 'none';
+  try {
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+      const res = await DeviceMotionEvent.requestPermission();
+      if (res !== 'granted') { showError('Permission denied. Please allow motion access in Settings → Safari/Chrome.'); return; }
+    }
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      await DeviceOrientationEvent.requestPermission().catch(() => {});
+    }
+    startListening();
+  } catch(e) {
+    showError('Could not request permission: ' + e.message);
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function startListening() {
+  window.addEventListener('devicemotion', onMotion, true);
+  window.addEventListener('deviceorientation', onOrientation, true);
+  document.getElementById('start-screen').style.display = 'none';
+  const dash = document.getElementById('dashboard');
+  dash.classList.add('visible');
+  document.getElementById('status-dot').classList.add('active');
+  initCharts();
+  requestAnimationFrame(renderLoop);
+}
+
+// ── Sensor handlers ──────────────────────────────────────────────────────────
+function onMotion(e) {
+  // acceleration including gravity (raw g-force from accelerometer)
+  const a = e.accelerationIncludingGravity || {};
+  const ax = (a.x || 0) * GRAVITY;  // convert g to m/s²
+  const ay = (a.y || 0) * GRAVITY;
+  const az = (a.z || 0) * GRAVITY;
+  push(data.accel.x, ax); push(data.accel.y, ay); push(data.accel.z, az);
+  document.getElementById('ax').textContent = ax.toFixed(2);
+  document.getElementById('ay').textContent = ay.toFixed(2);
+  document.getElementById('az').textContent = az.toFixed(2);
+  const mag = Math.sqrt(ax*ax + ay*ay + az*az);
+  if (mag > accelPeak) accelPeak = mag;
+  document.getElementById('accel-mag').textContent = mag.toFixed(2);
+  document.getElementById('accel-peak').textContent = accelPeak.toFixed(2);
+
+  const r = e.rotationRate || {};
+  const gx = r.alpha || 0; const gy = r.beta || 0; const gz = r.gamma || 0;
+  push(data.gyro.x, gx); push(data.gyro.y, gy); push(data.gyro.z, gz);
+  document.getElementById('gx').textContent = gx.toFixed(1);
+  document.getElementById('gy').textContent = gy.toFixed(1);
+  document.getElementById('gz').textContent = gz.toFixed(1);
+  const gmag = Math.sqrt(gx*gx + gy*gy + gz*gz);
+  if (gmag > gyroPeak) gyroPeak = gmag;
+  document.getElementById('gyro-mag').textContent = gmag.toFixed(1);
+  document.getElementById('gyro-peak').textContent = gyroPeak.toFixed(1);
+}
+
+function onOrientation(e) {
+  const a = e.alpha || 0, b = e.beta || 0, g = e.gamma || 0;
+  push(data.orient.a, a); push(data.orient.b, b); push(data.orient.g, g);
+  document.getElementById('oa').textContent = Math.round(a);
+  document.getElementById('ob').textContent = Math.round(b);
+  document.getElementById('og').textContent = Math.round(g);
+  // Ball: gamma = left/right tilt (-90..90), beta = front/back (-180..180)
+  const ball = document.getElementById('ball-dot');
+  const px = 50 + (g / 90) * 45;
+  const py = 50 + (b / 90) * 45;
+  ball.style.left = Math.max(5,Math.min(95,px)) + '%';
+  ball.style.top  = Math.max(5,Math.min(95,py)) + '%';
+}
+
+// ── Charts ────────────────────────────────────────────────────────────────────
+const STYLE = {
+  accel: { colors: ['#ff3b6e','#00e5ff','#b3ff00'], range: 30 },
+  gyro:  { colors: ['#ff9500','#bf5fff','#00ffb3'], range: 360 },
+  orient:{ colors: ['#ff3b6e','#00e5ff','#b3ff00'], range: 360 },
+};
+
+const charts = {};
+
+function initCharts() {
+  ['accel','gyro','orient'].forEach(k => {
+    const c = document.getElementById('chart-' + k);
+    c.width  = c.offsetWidth * window.devicePixelRatio;
+    c.height = c.offsetHeight * window.devicePixelRatio;
+    charts[k] = c.getContext('2d');
+    charts[k].scale(window.devicePixelRatio, window.devicePixelRatio);
+    charts[k]._w = c.offsetWidth;
+    charts[k]._h = c.offsetHeight;
+  });
+}
+
+function drawChart(ctx, seriesArr, colors, range) {
+  const W = ctx._w, H = ctx._h;
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = (i / 4) * H;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  // Zero line
+  ctx.strokeStyle = 'rgba(255,255,255,.12)';
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+
+  seriesArr.forEach((series, si) => {
+    ctx.strokeStyle = colors[si];
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = colors[si];
+    ctx.shadowBlur = 4;
+    ctx.beginPath();
+    const n = series.length;
+    series.forEach((v, i) => {
+      const x = (i / (BUFFER - 1)) * W;
+      const y = H/2 - (v / range) * (H/2 * .9);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  });
+}
+
+function renderLoop() {
+  if (activeTab === 'accel') {
+    const c = charts.accel;
+    if (c) drawChart(c, [data.accel.x, data.accel.y, data.accel.z], STYLE.accel.colors, STYLE.accel.range);
+  } else if (activeTab === 'gyro') {
+    const c = charts.gyro;
+    if (c) drawChart(c, [data.gyro.x, data.gyro.y, data.gyro.z], STYLE.gyro.colors, STYLE.gyro.range);
+  } else if (activeTab === 'orient') {
+    const c = charts.orient;
+    if (c) drawChart(c, [data.orient.a, data.orient.b, data.orient.g], STYLE.orient.colors, STYLE.orient.range);
+  }
+  requestAnimationFrame(renderLoop);
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(name) {
+  activeTab = name;
+  ['accel','gyro','orient'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('section-hidden', t !== name);
+    document.querySelectorAll('.tab').forEach((el, i) => {
+      el.classList.toggle('active', ['accel','gyro','orient'][i] === name);
+    });
+  });
+}
+</script>
+</body>
+</html>
